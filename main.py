@@ -62,6 +62,8 @@ def post_response(request: ChatRequest):
         "role": "user",
         "content": request.text
     })
+    
+    redis_client.set(key, json.dumps(history))
 
     return {"reply": f"You wrote: {request.text}"}
 
