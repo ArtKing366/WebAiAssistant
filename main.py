@@ -63,8 +63,8 @@ def post_response(request: ChatRequest):
         "content": request.text
     })
     
-    redis_client.set(key, json.dumps(history))
-
+    redis_client.setex(key, 3600, json.dump(history))
+    
     return {"reply": f"You wrote: {request.text}"}
 
 
