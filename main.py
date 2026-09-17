@@ -31,21 +31,39 @@ class ChatRequest(BaseModel):
     text:str
 
 
-@app.get("/")
-def get_response():
-    return FileResponse(STATIC_DIR / "index.html")
-
-
-
-@app.post("/chat")
-def post_response(request: ChatRequest):
-    return {"reply": f"You wrote: {request.text}"}
     
 
 redis_client = redis.from_url(
     REDIS_URL,
     decode_responses=True
 )
+
+
+def history_key(session_id) -> str:
+    return f"chat:{session_id}" 
+
+
+@app.get("/")
+def get_response():
+    return FileResponse(STATIC_DIR / "index.html")
+
+
+@app.post("/chat")
+def post_response(request: ChatRequest):
+    key = history_key(request.session_id)
+    raw = redis_client.get(key)
+
+    if raw is None:
+        history = []
+    else:
+        history = json.loads(raw)
+
+    history.append({
+        "role": "user",
+        "content": request.text
+    })
+
+    return {"reply": f"You wrote: {request.text}"}
 
 
 
