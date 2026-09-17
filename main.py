@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from google import genai
+from google.genai import types
 from pydantic import BaseModel
 import redis
 
@@ -64,7 +65,22 @@ def post_response(request: ChatRequest):
         "content": request.text
     })
 
-    reply = f"You wrote: {request.text}"
+    gemini_history = []
+
+    for message in history:
+        gemini_history.append(
+            types.Content(
+                role="model" if message["role"] == "assistant" else "user",
+                parts=[types.Part(text=message["content"])]
+            )
+        )
+
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=gemini_history
+    )
+
+    reply = response.text
 
     history.append({
         "role": "assistant",
