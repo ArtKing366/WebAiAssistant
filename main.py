@@ -91,6 +91,11 @@ def post_response(request: ChatRequest):
     return {"reply": reply}
 
 
+@app.delete("/chat/{session_id}")
+def clear_chat(session_id: str):
+    key = history_key(session_id)
+    redis_client.delete(key)
 
+    return {"message": "Chat history cleared"}
 
 
