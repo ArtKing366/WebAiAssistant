@@ -62,10 +62,16 @@ def post_response(request: ChatRequest):
         "role": "user",
         "content": request.text
     })
-    
-    redis_client.setex(key, 3600, json.dump(history))
-    
-    return {"reply": f"You wrote: {request.text}"}
+
+    reply = f"You wrote: {request.text}"
+
+    history.append({
+        "role": "assistant",
+        "content": reply
+    })
+
+    redis_client.setex(key, 3600, json.dumps(history))
+    return reply
 
 
 
