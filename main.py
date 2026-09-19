@@ -23,7 +23,6 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 
 MODEL_NAME = "gemini-3.6-flash"
 
-# Получаем ограничения модели один раз при запуске приложения
 model_info = client.models.get(model=MODEL_NAME)
 INPUT_TOKEN_LIMIT = model_info.input_token_limit
 
@@ -85,7 +84,6 @@ def post_response(request: ChatRequest):
             )
         )
 
-    # Считаем, сколько токенов занимает текущий input
     token_response = client.models.count_tokens(
         model=MODEL_NAME,
         contents=gemini_history
